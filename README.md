@@ -26,6 +26,13 @@ flowchart LR
 - [Docker](https://docs.docker.com/get-docker/) & Docker Compose
 - Git
 
+### Quick Reset / Zero-State Restart
+To completely wipe existing state, kill conflicting containers, and start fresh:
+```bash
+chmod +x reset.sh
+./reset.sh
+```
+
 ## Step-by-Step Setup Guide
 
 ### Step 1: Clone & Launch Infrastructure
