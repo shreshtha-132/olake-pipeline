@@ -1,0 +1,6 @@
+.DS_Store
+.ivy2/
+.m2/
+*.log
+volumes/
+.env

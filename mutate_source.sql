@@ -1,8 +1,9 @@
--- Simulate CDC changes (Update, Delete, Insert)
+-- Updates pending order
 UPDATE ecommerce.orders SET status = 'COMPLETED' WHERE customer_id = 102;
-UPDATE ecommerce.orders SET amount = 350.00 WHERE customer_id = 103;
 
-DELETE FROM ecommerce.orders WHERE customer_id = 104;
+-- Deletes a cancelled order
+DELETE FROM ecommerce.orders WHERE order_id = 4;
 
-INSERT INTO ecommerce.orders (customer_id, amount, status) VALUES
-(116, 420.00, 'COMPLETED');
+-- Inserts a new order
+INSERT INTO ecommerce.orders (order_id, customer_id, amount, status) VALUES
+(16, 116, 420.00, 'COMPLETED');
