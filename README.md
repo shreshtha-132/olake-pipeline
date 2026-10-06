@@ -27,7 +27,7 @@ flowchart LR
 - Git
 
 ### Quick Reset / Zero-State Restart
-To completely wipe existing state, kill conflicting containers, and start fresh:
+To completely wipe existing state, clean up all containers, networks, and persistent volumes, and return the workspace to a fresh post-clone baseline so you can manually start from Step 1:
 ```bash
 chmod +x reset.sh
 ./reset.sh
