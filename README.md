@@ -85,19 +85,20 @@ You can now log in at `http://localhost:8000` (Default credentials: `admin` / `p
 
 3. **Create Pipeline & Sync:**
    - Click **Jobs** > **Create Job**.
+   - **Name the Job explicitly:** `postgresjob`
    - Select Source: `postgres-source` and Destination: `iceberg-destination`. Click **Next**.
-   - Under Streams: Check `orders` under `ecommerce`.
+   - Under Streams: Select `orders` under schema `ecommerce`.
    - Set Sync Mode: `Full Refresh + Incremental`
    - Set Ingestion Mode: `Upsert`
-   - Set Upsert Type: `Equality Deletes` (Iceberg format version V2)
-   - Click **Create Job ->** and then click **Run Now** on the created job.
+   - Set Upsert Type: `Equality Deletes`
+   - Click **Create Job ->** and click **Run Now**
 
 ### Step 5: Initial Replication & Parity Check
 Once the initial sync in OLake is complete, query the Iceberg catalog via Spark SQL to verify the rows replicated successfully:
 
 ```bash
 chmod +x query_spark.sh
-./query_spark.sh "SELECT count(*) FROM demo.postgrestest_ecommerce_ecommerce.orders;"
+./query_spark.sh "SELECT count(*) FROM demo.postgresjob_ecommerce_ecommerce.orders;"
 ```
 
 ### Step 6: CDC Verification (Updates & Deletes)
@@ -107,7 +108,7 @@ docker exec -i postgres-source psql -U postgres -d ecommerce < mutate_source.sql
 ```
 Trigger the pipeline in OLake to sync the changes. Once finished, query Spark SQL to verify the updates and deletes gracefully propagated to Iceberg:
 ```bash
-./query_spark.sh "SELECT order_id, customer_id, amount, status FROM demo.postgrestest_ecommerce_ecommerce.orders WHERE customer_id = 102 ORDER BY order_id;"
+./query_spark.sh "SELECT order_id, customer_id, amount, status FROM demo.postgresjob_ecommerce_ecommerce.orders WHERE customer_id = 102 ORDER BY order_id;"
 ```
 
 ## Comparison Matrix
