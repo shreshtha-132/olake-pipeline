@@ -131,4 +131,4 @@ Building this robust architecture required solving three distinct engineering ch
 
 5. **Iceberg Catalog S3 Bucket Auto-Creation**
    - *Issue:* The Iceberg REST Catalog expects the underlying S3 bucket (`warehouse`) to exist upon boot, but `s3proxy` starts completely empty.
-   - *Solution:* Added an ephemeral `s3proxy-init` container in `docker-compose.yml` that waits for `s3proxy` to be ready and automatically issues a `PUT` request to create the `warehouse` bucket before the catalog boots.
+   - *Solution:* Added an ephemeral `s3proxy-provision` container in `docker-compose.yml` that waits for `s3proxy` to be ready and automatically issues a `PUT` request to create the `warehouse` bucket before the catalog boots.

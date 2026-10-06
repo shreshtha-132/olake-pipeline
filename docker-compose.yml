@@ -1,3 +1,5 @@
+version: '3.8'
+
 networks:
   olake-network:
     name: olake-network
@@ -31,16 +33,21 @@ services:
     networks:
       - olake-network
 
-  s3proxy-init:
-    image: curlimages/curl:latest
-    container_name: s3proxy-init
+  s3proxy-provision:
+    image: amazon/aws-cli:latest
+    container_name: s3proxy-provision
     depends_on:
       - s3proxy
     networks:
       - olake-network
-    command: >
-      sh -c "until curl -s http://s3proxy:9000/ > /dev/null; do sleep 1; done;
-             curl -s -X PUT http://s3proxy:9000/warehouse/ || true"
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password123
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      sh -c "until aws --endpoint-url=http://s3proxy:9000 s3 ls > /dev/null 2>&1; do sleep 1; done;
+             aws --endpoint-url=http://s3proxy:9000 s3 mb s3://warehouse || true;
+             echo 'Warehouse bucket ready!'"
 
   iceberg-rest-catalog:
     image: tabulario/iceberg-rest:latest
@@ -57,7 +64,9 @@ services:
       - AWS_ACCESS_KEY_ID=admin
       - AWS_SECRET_ACCESS_KEY=password123
     depends_on:
-      - s3proxy
-      - s3proxy-init
+      s3proxy:
+        condition: service_started
+      s3proxy-provision:
+        condition: service_completed_successfully
     networks:
       - olake-network
