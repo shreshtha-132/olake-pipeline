@@ -52,20 +52,35 @@ You can now log in at `http://localhost:8000` (Default credentials: `admin` / `p
 ### Step 4: Configure & Trigger Replication in OLake UI
 
 1. **Add Source (PostgreSQL):**
-   - **Host:** `host.docker.internal`
-   - **Port:** `5433`
-   - **Database:** `ecommerce`
-   - **User:** `postgres`
+   - Click **Sources** > **Create source** and select **Postgres**.
+   - **Name of your source:** `postgres-source`
+   - **Postgres Host:** `host.docker.internal`
+   - **Postgres Port:** `5433` *(Note: use 5433, not default 5432)*
+   - **Database Name:** `ecommerce`
+   - **Schemas:** Click **+ Add** and enter `ecommerce`
+   - **Username:** `postgres`
    - **Password:** `password123`
+   - **SSL Mode:** `disable`
+   - Click **Create ->** to test and save the connection.
 
 2. **Add Destination (Apache Iceberg):**
+   - Click **Destinations** > **Create destination** and select **Apache Iceberg**.
+   - **Name of your destination:** `iceberg-destination`
+   - **Catalog Type:** Select `Generic REST` from the dropdown *(default is AWS Glue)*.
    - **REST Catalog URI:** `http://host.docker.internal:8181`
-   - **Warehouse Location:** `s3://warehouse/`
+   - **S3 Path:** `s3://warehouse/`
    - **S3 Endpoint:** `http://host.docker.internal:9000`
-   - **S3 Access Key:** `admin`
-   - **S3 Secret Key:** `password123`
+   - **AWS Access Key:** `admin`
+   - **AWS Secret Key:** `password123`
+   - **AWS Region:** `us-east-1`
+   - *(Leave all REST Auth / Token fields blank)*
+   - Click **Create ->** to test and save the destination.
 
-3. Create a pipeline in the UI to replicate the `orders` table (under the `public` schema) and trigger the initial sync.
+3. **Create Pipeline & Sync:**
+   - Go to **Jobs** / **Pipelines** > **Create Pipeline**.
+   - Select Source `postgres-source` and Destination `iceberg-destination`.
+   - Select the `ecommerce.orders` stream.
+   - Trigger the initial sync via **Run Now**.
 
 ### Step 5: Initial Replication & Parity Check
 Once the initial sync in OLake is complete, query the Iceberg catalog via Spark SQL to verify the rows replicated successfully:
