@@ -1,0 +1,26 @@
+CREATE SCHEMA IF NOT EXISTS ecommerce;
+
+CREATE TABLE ecommerce.orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO ecommerce.orders (customer_id, amount, status) VALUES
+(101, 250.00, 'COMPLETED'),
+(102, 120.50, 'PENDING'),
+(103, 340.75, 'COMPLETED'),
+(104, 50.00, 'CANCELLED'),
+(105, 90.00, 'REFUNDED'),
+(106, 110.25, 'COMPLETED'),
+(107, 75.00, 'PENDING'),
+(108, 450.00, 'COMPLETED'),
+(109, 25.50, 'COMPLETED'),
+(110, 500.00, 'PENDING'),
+(111, 150.00, 'COMPLETED'),
+(112, 60.00, 'CANCELLED'),
+(113, 200.00, 'REFUNDED'),
+(114, 180.00, 'COMPLETED'),
+(115, 300.00, 'PENDING');
