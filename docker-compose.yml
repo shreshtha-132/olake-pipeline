@@ -1,4 +1,7 @@
-version: '3.8'
+networks:
+  olake-network:
+    name: olake-network
+    driver: bridge
 
 services:
   postgres-source:
@@ -11,53 +14,50 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./init-source.sql:/docker-entrypoint-initdb.d/init-source.sql
+      - ./init-source.sql:/docker-entrypoint-initdb.d/init-source.sql:ro
     networks:
       - olake-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   s3proxy:
     image: andrewgaul/s3proxy:latest
     container_name: s3proxy
     environment:
+      S3PROXY_AUTHORIZATION: aws-v2-or-v4
       S3PROXY_IDENTITY: admin
       S3PROXY_CREDENTIAL: password123
-      S3PROXY_CORS_ALLOW_ALL: "true"
       S3PROXY_ENDPOINT: http://0.0.0.0:9000
     ports:
       - "9000:9000"
     networks:
       - olake-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
-  iceberg-rest-catalog:
-    image: tabulario/iceberg-rest:latest
-    container_name: iceberg-rest-catalog
-    environment:
-      AWS_REGION: us-east-1
-      AWS_DEFAULT_REGION: us-east-1
-      CATALOG_WAREHOUSE: s3://warehouse/
-      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
-      CATALOG_S3_ENDPOINT: http://s3proxy:9000
-      CATALOG_S3_PATH__STYLE__ACCESS: "true"
-      AWS_ACCESS_KEY_ID: admin
-      AWS_SECRET_ACCESS_KEY: password123
-    ports:
-      - "8181:8181"
+  s3proxy-init:
+    image: curlimages/curl:latest
+    container_name: s3proxy-init
     depends_on:
       - s3proxy
     networks:
       - olake-network
+    command: >
+      sh -c "until curl -s http://s3proxy:9000/ > /dev/null; do sleep 1; done;
+             curl -s -X PUT http://s3proxy:9000/warehouse/ || true"
 
-networks:
-  olake-network:
-    driver: bridge
-    name: olake-network
+  iceberg-rest-catalog:
+    image: tabulario/iceberg-rest:latest
+    container_name: iceberg-rest-catalog
+    ports:
+      - "8181:8181"
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+      - CATALOG_WAREHOUSE=s3://warehouse/
+      - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - CATALOG_S3_ENDPOINT=http://s3proxy:9000
+      - CATALOG_S3_PATH__STYLE__ACCESS=true
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password123
+    depends_on:
+      - s3proxy
+      - s3proxy-init
+    networks:
+      - olake-network

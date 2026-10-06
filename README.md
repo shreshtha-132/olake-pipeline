@@ -128,3 +128,7 @@ Building this robust architecture required solving three distinct engineering ch
 4. **AWS Region SDK Exception**
    - *Issue:* Iceberg REST Catalog container throws `SdkClientException` when creating tables if an AWS region is not specified.
    - *Solution:* Explicitly added `AWS_REGION=us-east-1` and `AWS_DEFAULT_REGION=us-east-1` to the `iceberg-rest-catalog` environment block in `docker-compose.yml`.
+
+5. **Iceberg Catalog S3 Bucket Auto-Creation**
+   - *Issue:* The Iceberg REST Catalog expects the underlying S3 bucket (`warehouse`) to exist upon boot, but `s3proxy` starts completely empty.
+   - *Solution:* Added an ephemeral `s3proxy-init` container in `docker-compose.yml` that waits for `s3proxy` to be ready and automatically issues a `PUT` request to create the `warehouse` bucket before the catalog boots.
