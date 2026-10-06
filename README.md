@@ -18,11 +18,11 @@ This architecture solves that by using:
 
 ```mermaid
 flowchart LR
-    A[(PostgreSQL 16\nSource DB)] -->|CDC (Updates/Deletes)| B(OLake)
+    A[("PostgreSQL 16<br>Source DB")] -->|CDC Updates/Deletes| B(OLake)
     B -->|Commits Metadata| C[Iceberg REST Catalog]
-    B -->|Writes Parquet| D[(S3 Proxy\nStorage Layer)]
+    B -->|Writes Parquet| D[("S3 Proxy<br>Storage Layer")]
     C -.->|Manages| D
-    E[Apache Spark\nAnalytics Engine] -->|Queries| C
+    E["Apache Spark<br>Analytics Engine"] -->|Queries| C
 ```
 
 ---
