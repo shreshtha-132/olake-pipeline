@@ -39,7 +39,7 @@ docker-compose up -d
 ### Step 2: Verify Initial Seed Data in PostgreSQL
 The database automatically seeds 15 rows on startup. Verify they exist:
 ```bash
-docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT * FROM ecommerce.orders;"
+docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT * FROM orders;"
 ```
 
 ### Step 3: Start OLake UI
@@ -60,6 +60,7 @@ You can now log in at `http://localhost:8000` (Default credentials: `admin` / `p
 
 2. **Add Destination (Apache Iceberg):**
    - **REST Catalog URI:** `http://host.docker.internal:8181`
+   - **Warehouse Location:** `s3://warehouse/`
    - **S3 Endpoint:** `http://host.docker.internal:9000`
    - **S3 Access Key:** `admin`
    - **S3 Secret Key:** `password123`
@@ -81,7 +82,7 @@ docker exec -i postgres-source psql -U postgres -d ecommerce < mutate_source.sql
 ```
 Trigger the pipeline in OLake to sync the changes. Once finished, query Spark SQL to verify the updates and deletes gracefully propagated to Iceberg:
 ```bash
-./query_spark.sh
+./query_spark.sh "SELECT order_id, customer_id, amount, status FROM demo.postgrestoicebergorders_ecommerce_public.orders WHERE customer_id = 102 ORDER BY order_id;"
 ```
 
 ## Comparison Matrix
