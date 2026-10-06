@@ -31,7 +31,7 @@ flowchart LR
 ### Step 1: Clone & Launch Infrastructure
 Start the environment (PostgreSQL source, S3 Proxy, Iceberg REST Catalog) using Docker Compose:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/shreshtha-132/olake-pipeline.git
 cd olake-pipeline
 docker-compose up -d
 ```
