@@ -39,7 +39,7 @@ docker compose up -d
 ### Step 2: Verify Initial Seed Data in PostgreSQL
 The database automatically seeds 15 rows on startup. Verify they exist:
 ```bash
-docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT * FROM orders;"
+docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT * FROM ecommerce.orders;"
 ```
 
 ### Step 3: Start OLake UI
