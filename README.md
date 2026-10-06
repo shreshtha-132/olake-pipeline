@@ -42,8 +42,14 @@ The database automatically seeds 15 rows on startup. Verify they exist:
 docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT * FROM ecommerce.orders;"
 ```
 
-### Step 3: Configure & Trigger Replication in OLake UI
-Ensure your OLake engine is running and accessible at `http://localhost:8000`.
+### Step 3: Start OLake UI
+Launch the official OLake UI container. This will run alongside your infrastructure:
+```bash
+curl -sSL https://raw.githubusercontent.com/datazip-inc/olake-ui/master/docker-compose-v1.yml | docker compose -f - up -d
+```
+You can now log in at `http://localhost:8000` (Default credentials: `admin` / `password`).
+
+### Step 4: Configure & Trigger Replication in OLake UI
 
 1. **Add Source (PostgreSQL):**
    - **Host:** `host.docker.internal`
@@ -60,7 +66,7 @@ Ensure your OLake engine is running and accessible at `http://localhost:8000`.
 
 3. Create a pipeline in the UI to replicate the `ecommerce.orders` table and trigger the initial sync.
 
-### Step 4: Initial Replication & Parity Check
+### Step 5: Initial Replication & Parity Check
 Once the initial sync in OLake is complete, query the Iceberg catalog via Spark SQL to verify the rows replicated successfully:
 
 ```bash
@@ -68,7 +74,7 @@ chmod +x query_spark.sh
 ./query_spark.sh "SELECT count(*) FROM demo.postgrestoicebergorders_ecommerce_public.orders;"
 ```
 
-### Step 5: CDC Verification (Updates & Deletes)
+### Step 6: CDC Verification (Updates & Deletes)
 Apply real-world mutations to your source database:
 ```bash
 docker exec -i postgres-source psql -U postgres -d ecommerce < mutate_source.sql
