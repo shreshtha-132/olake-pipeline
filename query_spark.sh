@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default query if no argument is provided
-DEFAULT_QUERY="SELECT order_id, customer_id, amount, status FROM demo.postgrestoicebergorders_ecommerce_public.orders ORDER BY order_id;"
+DEFAULT_QUERY="SELECT order_id, customer_id, amount, status FROM demo.postgrestest_ecommerce_ecommerce.orders ORDER BY order_id;"
 QUERY="${1:-$DEFAULT_QUERY}"
 
 echo "Executing Spark SQL Query: $QUERY"
