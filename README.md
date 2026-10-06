@@ -39,7 +39,7 @@ docker compose up -d
 ### Step 2: Verify Initial Seed Data in PostgreSQL
 The database automatically seeds 15 rows on startup. Verify they exist:
 ```bash
-docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT * FROM ecommerce.orders;"
+docker exec -it postgres-source psql -U postgres -d ecommerce -c "SELECT count(*) FROM ecommerce.orders;"
 ```
 
 ### Step 3: Start OLake UI
@@ -124,3 +124,7 @@ Building this robust architecture required solving three distinct engineering ch
 3. **AWS S3 SDK Bundle Dependency Missing**
    - *Issue:* Including only the Iceberg Spark runtime (`iceberg-spark-runtime-3.5_2.12`) results in a `ClassNotFoundException: software.amazon.awssdk.services.s3.model.S3Exception` when interacting with S3Proxy.
    - *Solution:* The `query_spark.sh` wrapper explicitly appends `org.apache.iceberg:iceberg-aws-bundle:1.5.0` to the `--packages` argument, packaging all required AWS networking libraries.
+
+4. **AWS Region SDK Exception**
+   - *Issue:* Iceberg REST Catalog container throws `SdkClientException` when creating tables if an AWS region is not specified.
+   - *Solution:* Explicitly added `AWS_REGION=us-east-1` and `AWS_DEFAULT_REGION=us-east-1` to the `iceberg-rest-catalog` environment block in `docker-compose.yml`.

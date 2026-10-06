@@ -42,12 +42,14 @@ services:
     image: tabulario/iceberg-rest:latest
     container_name: iceberg-rest-catalog
     environment:
+      AWS_REGION: us-east-1
+      AWS_DEFAULT_REGION: us-east-1
       CATALOG_WAREHOUSE: s3://warehouse/
       CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
       CATALOG_S3_ENDPOINT: http://s3proxy:9000
       CATALOG_S3_PATH__STYLE__ACCESS: "true"
-      CATALOG_S3_ACCESS__KEY__ID: admin
-      CATALOG_S3_SECRET__ACCESS__KEY: password123
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password123
     ports:
       - "8181:8181"
     depends_on:
