@@ -33,7 +33,7 @@ Start the environment (PostgreSQL source, S3 Proxy, Iceberg REST Catalog) using 
 ```bash
 git clone https://github.com/shreshtha-132/olake-pipeline.git
 cd olake-pipeline
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Step 2: Verify Initial Seed Data in PostgreSQL
@@ -65,7 +65,7 @@ You can now log in at `http://localhost:8000` (Default credentials: `admin` / `p
    - **S3 Access Key:** `admin`
    - **S3 Secret Key:** `password123`
 
-3. Create a pipeline in the UI to replicate the `ecommerce.orders` table and trigger the initial sync.
+3. Create a pipeline in the UI to replicate the `orders` table (under the `public` schema) and trigger the initial sync.
 
 ### Step 5: Initial Replication & Parity Check
 Once the initial sync in OLake is complete, query the Iceberg catalog via Spark SQL to verify the rows replicated successfully:
