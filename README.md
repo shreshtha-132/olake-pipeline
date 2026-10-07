@@ -86,12 +86,20 @@ You can now log in at `http://localhost:8000` (Default credentials: `admin` / `p
 3. **Create Pipeline & Sync:**
    - Click **Jobs** > **Create Job**.
    - **Name the Job explicitly:** `postgresjob`
+     > ⚠️ **Critical - Job Name Determines Iceberg Namespace:**
+     > OLake automatically generates the Iceberg namespace format as:
+     > `<catalog_name>.<job_name>_<database>_<schema>.<table>`
+     > By naming the job `postgresjob`, your destination table resolves to:
+     > `demo.postgresjob_ecommerce_ecommerce.orders`
+     > If you name your job something else (e.g., `hellocheck`), update all subsequent Spark SQL queries accordingly (e.g., `demo.hellocheck_ecommerce_ecommerce.orders`).
    - Select Source: `postgres-source` and Destination: `iceberg-destination`. Click **Next**.
    - Under Streams: Select `orders` under schema `ecommerce`.
-   - Set Sync Mode: `Full Refresh + Incremental`
-   - Set Ingestion Mode: `Upsert`
-   - Set Upsert Type: `Equality Deletes`
-   - Click **Create Job ->** and click **Run Now**
+   - **Set Sync Mode:** `Full Refresh`
+     > 💡 **Why Full Refresh for CDC Demo?**
+     > `Full Refresh + Incremental` relies on a monotonically increasing cursor column (e.g., `order_id`). Updating an existing record (`status = 'COMPLETED'` on `order_id = 2`) leaves the ID unchanged, causing an incremental sync to skip the update. Selecting `Full Refresh` guarantees all updates and equality deletes replicate directly.
+   - **Set Ingestion Mode:** `Upsert`
+   - **Set Upsert Type:** `Equality Deletes`
+   - Click **Create Job ->** and then click **Run Now**.
 
 ### Step 5: Initial Replication & Parity Check
 Once the initial sync in OLake is complete, query the Iceberg catalog via Spark SQL to verify the rows replicated successfully:
@@ -143,3 +151,7 @@ Building this robust architecture required solving three distinct engineering ch
 5. **Iceberg Catalog S3 Bucket Auto-Creation**
    - *Issue:* The Iceberg REST Catalog expects the underlying S3 bucket (`warehouse`) to exist upon boot, but `s3proxy` starts completely empty.
    - *Solution:* Added an ephemeral `s3proxy-provision` container in `docker-compose.yml` that waits for `s3proxy` to be ready and automatically issues a `PUT` request to create the `warehouse` bucket before the catalog boots.
+
+6. **Incremental Cursor Skipping Non-Key Mutations (Updates/Deletes)**
+   - *Issue:* Configuring `Full Refresh + Incremental` with an integer primary key (e.g., `order_id`) as the cursor causes subsequent runs to ignore `UPDATE` or `DELETE` operations on existing lower-ID records.
+   - *Solution:* In the stream configuration, select `Full Refresh` with `Upsert (Equality Deletes)` to guarantee that updates propagate to the Iceberg table without requiring an auto-updating timestamp column.
